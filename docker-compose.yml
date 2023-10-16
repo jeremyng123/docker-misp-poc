@@ -89,6 +89,7 @@ services:
       # customize by replacing ${CUSTOM_PATH} with a path containing 'files/customize_misp.sh'
       # - "${CUSTOM_PATH}/:/custom/"
     environment:
+      - "MYSQL_HOST=db0"
       - "HOSTNAME=${HOSTNAME}"
       - "CRON_USER_ID=${CRON_USER_ID}"
       - "DISABLE_IPV6=${DISABLE_IPV6}"
@@ -143,6 +144,7 @@ services:
       # customize by replacing ${CUSTOM_PATH} with a path containing 'files/customize_misp.sh'
       # - "${CUSTOM_PATH}/:/custom/"
     environment:
+      - "MYSQL_HOST=db1"
       - "HOSTNAME=${HOSTNAME}"
       - "CRON_USER_ID=${CRON_USER_ID}"
       - "DISABLE_IPV6=${DISABLE_IPV6}"
@@ -197,6 +199,7 @@ services:
       # customize by replacing ${CUSTOM_PATH} with a path containing 'files/customize_misp.sh'
       # - "${CUSTOM_PATH}/:/custom/"
     environment:
+      - "MYSQL_HOST=db2"
       - "HOSTNAME=${HOSTNAME}"
       - "CRON_USER_ID=${CRON_USER_ID}"
       - "DISABLE_IPV6=${DISABLE_IPV6}"
