@@ -14,7 +14,35 @@ services:
   redis:
     image: redis:5.0.6
 
-  db:
+  db0:
+    # We use MariaDB because it supports ARM and has the expected collations
+    image: mariadb:10.8.2
+    restart: always
+    environment:
+      - "MYSQL_USER=misp"
+      - "MYSQL_PASSWORD=example"
+      - "MYSQL_ROOT_PASSWORD=password"
+      - "MYSQL_DATABASE=misp"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    cap_add:
+      - SYS_NICE  # CAP_SYS_NICE Prevent runaway mysql log
+  
+  db1:
+    # We use MariaDB because it supports ARM and has the expected collations
+    image: mariadb:10.8.2
+    restart: always
+    environment:
+      - "MYSQL_USER=misp"
+      - "MYSQL_PASSWORD=example"
+      - "MYSQL_ROOT_PASSWORD=password"
+      - "MYSQL_DATABASE=misp"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    cap_add:
+      - SYS_NICE  # CAP_SYS_NICE Prevent runaway mysql log
+  
+  db2:
     # We use MariaDB because it supports ARM and has the expected collations
     image: mariadb:10.8.2
     restart: always
@@ -28,7 +56,7 @@ services:
     cap_add:
       - SYS_NICE  # CAP_SYS_NICE Prevent runaway mysql log
 
-  misp:
+  misp0:
     image: ostefano/misp-docker:core-latest
     build:
       context: server/.
@@ -47,10 +75,10 @@ services:
           - PYPI_PYMISP_VERSION=${PYPI_PYMISP_VERSION}
     depends_on:
       - redis
-      - db
+      - db0
     ports:
-      - "80:80"
-      - "443:443"
+      - "5000:80"
+      - "6000:443"
     volumes:
       - "./configs/:/var/www/MISP/app/Config/"
       - "./logs/:/var/www/MISP/app/tmp/logs/"
@@ -81,6 +109,113 @@ services:
           "pull": true
         }
   
+  misp1:
+    image: ostefano/misp-docker:core-latest
+    build:
+      context: server/.
+      args:
+          - MISP_TAG=${MISP_TAG}
+          - MISP_COMMIT=${MISP_COMMIT}
+          - PHP_VER=${PHP_VER}
+          - PYPI_REDIS_VERSION=${PYPI_REDIS_VERSION}
+          - PYPI_LIEF_VERSION=${PYPI_LIEF_VERSION}
+          - PYPI_PYDEEP2_VERSION=${PYPI_PYDEEP2_VERSION}
+          - PYPI_PYTHON_MAGIC_VERSION=${PYPI_PYTHON_MAGIC_VERSION}
+          - PYPI_MISP_LIB_STIX2_VERSION=${PYPI_MISP_LIB_STIX2_VERSION}
+          - PYPI_MAEC_VERSION=${PYPI_MAEC_VERSION}
+          - PYPI_MIXBOX_VERSION=${PYPI_MIXBOX_VERSION}
+          - PYPI_CYBOX_VERSION=${PYPI_CYBOX_VERSION}
+          - PYPI_PYMISP_VERSION=${PYPI_PYMISP_VERSION}
+    depends_on:
+      - redis
+      - db1
+    ports:
+      - "5001:80"
+      - "6001:443"
+    volumes:
+      - "./configs/:/var/www/MISP/app/Config/"
+      - "./logs/:/var/www/MISP/app/tmp/logs/"
+      - "./files/:/var/www/MISP/app/files/"
+      - "./ssl/:/etc/nginx/certs/"
+      - "./gnupg/:/var/www/MISP/.gnupg/"
+      # customize by replacing ${CUSTOM_PATH} with a path containing 'files/customize_misp.sh'
+      # - "${CUSTOM_PATH}/:/custom/"
+    environment:
+      - "HOSTNAME=${HOSTNAME}"
+      - "CRON_USER_ID=${CRON_USER_ID}"
+      - "DISABLE_IPV6=${DISABLE_IPV6}"
+      # standard settings
+      - "ADMIN_EMAIL=${ADMIN_EMAIL}"
+      - "ADMIN_PASSWORD=${ADMIN_PASSWORD}"
+      - "ADMIN_KEY=${ADMIN_KEY}"
+      - "ADMIN_ORG=${ADMIN_ORG}"
+      - "GPG_PASSPHRASE=${GPG_PASSPHRASE}"
+      # sync server settings (see https://www.misp-project.org/openapi/#tag/Servers for more options)
+      - "SYNCSERVERS=${SYNCSERVERS}"
+      - |
+        SYNCSERVERS_1_DATA=
+        {
+          "remote_org_uuid": "${SYNCSERVERS_1_UUID}",
+          "name": "${SYNCSERVERS_1_NAME}",
+          "authkey": "${SYNCSERVERS_1_KEY}",
+          "url": "${SYNCSERVERS_1_URL}",
+          "pull": true
+        }
+  
+  misp2:
+    image: ostefano/misp-docker:core-latest
+    build:
+      context: server/.
+      args:
+          - MISP_TAG=${MISP_TAG}
+          - MISP_COMMIT=${MISP_COMMIT}
+          - PHP_VER=${PHP_VER}
+          - PYPI_REDIS_VERSION=${PYPI_REDIS_VERSION}
+          - PYPI_LIEF_VERSION=${PYPI_LIEF_VERSION}
+          - PYPI_PYDEEP2_VERSION=${PYPI_PYDEEP2_VERSION}
+          - PYPI_PYTHON_MAGIC_VERSION=${PYPI_PYTHON_MAGIC_VERSION}
+          - PYPI_MISP_LIB_STIX2_VERSION=${PYPI_MISP_LIB_STIX2_VERSION}
+          - PYPI_MAEC_VERSION=${PYPI_MAEC_VERSION}
+          - PYPI_MIXBOX_VERSION=${PYPI_MIXBOX_VERSION}
+          - PYPI_CYBOX_VERSION=${PYPI_CYBOX_VERSION}
+          - PYPI_PYMISP_VERSION=${PYPI_PYMISP_VERSION}
+    depends_on:
+      - redis
+      - db2
+    ports:
+      - "5002:80"
+      - "6002:443"
+    volumes:
+      - "./configs/:/var/www/MISP/app/Config/"
+      - "./logs/:/var/www/MISP/app/tmp/logs/"
+      - "./files/:/var/www/MISP/app/files/"
+      - "./ssl/:/etc/nginx/certs/"
+      - "./gnupg/:/var/www/MISP/.gnupg/"
+      # customize by replacing ${CUSTOM_PATH} with a path containing 'files/customize_misp.sh'
+      # - "${CUSTOM_PATH}/:/custom/"
+    environment:
+      - "HOSTNAME=${HOSTNAME}"
+      - "CRON_USER_ID=${CRON_USER_ID}"
+      - "DISABLE_IPV6=${DISABLE_IPV6}"
+      # standard settings
+      - "ADMIN_EMAIL=${ADMIN_EMAIL}"
+      - "ADMIN_PASSWORD=${ADMIN_PASSWORD}"
+      - "ADMIN_KEY=${ADMIN_KEY}"
+      - "ADMIN_ORG=${ADMIN_ORG}"
+      - "GPG_PASSPHRASE=${GPG_PASSPHRASE}"
+      # sync server settings (see https://www.misp-project.org/openapi/#tag/Servers for more options)
+      - "SYNCSERVERS=${SYNCSERVERS}"
+      - |
+        SYNCSERVERS_1_DATA=
+        {
+          "remote_org_uuid": "${SYNCSERVERS_1_UUID}",
+          "name": "${SYNCSERVERS_1_NAME}",
+          "authkey": "${SYNCSERVERS_1_KEY}",
+          "url": "${SYNCSERVERS_1_URL}",
+          "pull": true
+        }
+
+
   misp-modules:
     image: ostefano/misp-docker:modules-latest
     build:
@@ -95,4 +230,9 @@ services:
       - redis
 
 volumes:
-    mysql_data:
+    mysql_data0:
+      external: true
+    mysql_data1:
+      external: true
+    mysql_data2:
+      external: true
