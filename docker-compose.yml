@@ -61,6 +61,7 @@ services:
     build:
       context: server/.
       args:
+          - MYSQL_HOST=db0
           - MISP_TAG=${MISP_TAG}
           - MISP_COMMIT=${MISP_COMMIT}
           - PHP_VER=${PHP_VER}
@@ -114,6 +115,7 @@ services:
     build:
       context: server/.
       args:
+          - MYSQL_HOST=db1
           - MISP_TAG=${MISP_TAG}
           - MISP_COMMIT=${MISP_COMMIT}
           - PHP_VER=${PHP_VER}
@@ -167,6 +169,7 @@ services:
     build:
       context: server/.
       args:
+          - MYSQL_HOST=db2
           - MISP_TAG=${MISP_TAG}
           - MISP_COMMIT=${MISP_COMMIT}
           - PHP_VER=${PHP_VER}
