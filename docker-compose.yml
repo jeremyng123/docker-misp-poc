@@ -79,18 +79,18 @@ services:
       - db0
     ports:
       - "5000:80"
-      - "6000:443"
+      - "6001:443"
     volumes:
-      - "./configs/:/var/www/MISP/app/Config/"
-      - "./logs/:/var/www/MISP/app/tmp/logs/"
-      - "./files/:/var/www/MISP/app/files/"
-      - "./ssl/:/etc/nginx/certs/"
-      - "./gnupg/:/var/www/MISP/.gnupg/"
+      - "./configs0/:/var/www/MISP/app/Config/"
+      - "./logs0/:/var/www/MISP/app/tmp/logs/"
+      - "./files0/:/var/www/MISP/app/files/"
+      - "./ssl0/:/etc/nginx/certs/"
+      - "./gnupg0/:/var/www/MISP/.gnupg/"
       # customize by replacing ${CUSTOM_PATH} with a path containing 'files/customize_misp.sh'
       # - "${CUSTOM_PATH}/:/custom/"
     environment:
       - "MYSQL_HOST=db0"
-      - "HOSTNAME=${HOSTNAME}"
+      - "HOSTNAME=${HOSTNAME}:6001"
       - "CRON_USER_ID=${CRON_USER_ID}"
       - "DISABLE_IPV6=${DISABLE_IPV6}"
       # standard settings
@@ -134,7 +134,7 @@ services:
       - db1
     ports:
       - "5001:80"
-      - "6001:443"
+      - "6002:443"
     volumes:
       - "./configs1/:/var/www/MISP/app/Config/"
       - "./logs1/:/var/www/MISP/app/tmp/logs/"
@@ -145,7 +145,7 @@ services:
       # - "${CUSTOM_PATH}/:/custom/"
     environment:
       - "MYSQL_HOST=db1"
-      - "HOSTNAME=${HOSTNAME}"
+      - "HOSTNAME=${HOSTNAME}:6002"
       - "CRON_USER_ID=${CRON_USER_ID}"
       - "DISABLE_IPV6=${DISABLE_IPV6}"
       # standard settings
@@ -189,7 +189,7 @@ services:
       - db2
     ports:
       - "5002:80"
-      - "6002:443"
+      - "6003:443"
     volumes:
       - "./configs2/:/var/www/MISP/app/Config/"
       - "./logs2/:/var/www/MISP/app/tmp/logs/"
@@ -200,7 +200,7 @@ services:
       # - "${CUSTOM_PATH}/:/custom/"
     environment:
       - "MYSQL_HOST=db2"
-      - "HOSTNAME=${HOSTNAME}"
+      - "HOSTNAME=${HOSTNAME}:6003"
       - "CRON_USER_ID=${CRON_USER_ID}"
       - "DISABLE_IPV6=${DISABLE_IPV6}"
       # standard settings
